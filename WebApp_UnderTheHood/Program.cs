@@ -1,3 +1,6 @@
+using Microsoft.AspNetCore.Authorization;
+using WebApp_UnderTheHood.Authorization;
+
 namespace WebApp_UnderTheHood
 {
     public class Program
@@ -13,6 +16,8 @@ namespace WebApp_UnderTheHood
             {
                 options.Cookie.Name = "MyCookieAuth";
                 //options.LoginPath = "/UserAccount/Login";
+                options.ExpireTimeSpan = TimeSpan.FromDays(10);
+               
             });
 
             builder.Services.AddAuthorization(options =>
@@ -21,9 +26,12 @@ namespace WebApp_UnderTheHood
                 options.AddPolicy("AdminOnly", policy => policy.RequireClaim("Admin"));
                 options.AddPolicy("HRManagerOnly", policy => policy
                 .RequireClaim("Department", "HR")
-                .RequireClaim("Manager"));
+                .RequireClaim("Manager")
+                .Requirements.Add(new HRManagerProbationRequirement(3)));
                 
             });
+
+            builder.Services.AddSingleton<IAuthorizationHandler, HRManagerProbationRequirementHandler>();
 
             var app = builder.Build();
 
