@@ -38,6 +38,13 @@ namespace WebApp_UnderTheHood
                 client.BaseAddress = new Uri("https://localhost:7225/");
             });
 
+            builder.Services.AddSession(options =>
+            {
+                options.Cookie.HttpOnly = true;
+                options.IdleTimeout = TimeSpan.FromMinutes(20);
+                options.Cookie.IsEssential = true;
+            });
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -55,6 +62,8 @@ namespace WebApp_UnderTheHood
 
             app.UseAuthentication();
             app.UseAuthorization();
+
+            app.UseSession();
 
             app.MapRazorPages();
 
