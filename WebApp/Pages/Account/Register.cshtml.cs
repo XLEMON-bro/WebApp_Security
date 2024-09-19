@@ -40,7 +40,11 @@ namespace WebApp.Pages.Account
 
             if (result.Succeeded)
             {
-                return RedirectToPage("/Account/Login");
+                var confirmationToken = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+
+                return Redirect(Url.PageLink(pageName:"/Account/ConfirmEmail", values: new {userId = user.Id, token = confirmationToken}) ?? ""); // todo: sent actuall email
+
+                //return RedirectToPage("/Account/Login");
             }
             else
             {
