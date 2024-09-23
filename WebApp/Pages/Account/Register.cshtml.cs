@@ -2,17 +2,19 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
+using WebApp.Data.Account;
 
 namespace WebApp.Pages.Account
 {
     public class RegisterModel : PageModel
     {
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<User> _userManager;
 
         [BindProperty]
         public RegisterViewModel RegisterViewModel { get; set; } = new RegisterViewModel();
 
-        public RegisterModel(UserManager<IdentityUser> userManager)
+        public RegisterModel(UserManager<User> userManager)
         {
             _userManager = userManager;
         }
@@ -30,16 +32,24 @@ namespace WebApp.Pages.Account
 
 
             // Create the user
-            var user = new IdentityUser
+            var user = new User
             {
                 Email = RegisterViewModel.Email,
-                UserName = RegisterViewModel.Email
+                UserName = RegisterViewModel.Email,
+                //Department = RegisterViewModel.Department,
+                //Position = RegisterViewModel.Position
             };
+
+            var claimDepartment = new Claim("Department", RegisterViewModel.Department);
+            var claimPosition = new Claim("Position", RegisterViewModel.Position);
 
             var result = await _userManager.CreateAsync(user, RegisterViewModel.Password);
 
             if (result.Succeeded)
             {
+                await _userManager.AddClaimAsync(user, claimDepartment);
+                await _userManager.AddClaimAsync(user, claimPosition);
+
                 var confirmationToken = await _userManager.GenerateEmailConfirmationTokenAsync(user);
 
                 return Redirect(Url.PageLink(pageName:"/Account/ConfirmEmail", values: new {userId = user.Id, token = confirmationToken}) ?? ""); // todo: sent actuall email
@@ -68,5 +78,11 @@ namespace WebApp.Pages.Account
         [DataType(dataType: DataType.Password)]
         [Display(Name = "Password")]
         public string Password { get; set; } = string.Empty;
+
+        [Required]
+        public string Department { get; set; } = string.Empty;
+        [Required]
+        public string Position { get; set; } = string.Empty;
+
     }
 }

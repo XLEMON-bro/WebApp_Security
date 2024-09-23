@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using WebApp.Data;
+using WebApp.Data.Account;
 
 namespace WebApp
 {
@@ -18,7 +19,7 @@ namespace WebApp
                 options.UseSqlServer(builder.Configuration.GetConnectionString("Default"));
             });
 
-            builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
+            builder.Services.AddIdentity<User, IdentityRole>(options =>
             {
                 options.Password.RequiredLength = 8;
                 options.Password.RequireLowercase = true;
